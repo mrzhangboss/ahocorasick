@@ -111,25 +111,26 @@ class Trie(val depth: Int = 0) {
       var notSet = true
       var newCurrentState = currentState.nextState(char, true)
 
-      def storeEmit(currentState: State): Unit = {
+      def storeEmit(currentState: State): Boolean = {
         currentState.emit match {
           case Some(str) if notSet =>
             notSet = false
             res.append(new Emit(position - str.length + 1, position, str))
-            if (onlyOne)
-              return res
-          case _ =>
+            true
+          case _ => false
         }
       }
 
       while (newCurrentState == null) {
         // before match
-        storeEmit(currentState)
+        if (storeEmit(currentState) && onlyOne)
+          return res
 
         currentState = currentState.failure
 
         // first fail try add emit
-        storeEmit(currentState)
+        if (storeEmit(currentState) && onlyOne)
+          return res
 
         newCurrentState = currentState.nextState(char, true)
 
